@@ -8,40 +8,74 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  List<String> myList = [
+    "Batman",
+    "Superman",
+    "IronMan",
+    "The Atom",
+    "Black Panther",
+    
+  ];
+
+  TextEditingController charController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: CustomScrollView(
-        slivers: [
-           SliverAppBar(
-            backgroundColor: Color.fromRGBO(1, 23, 54, 1),
-            leading: const Icon(Icons.add),
-            actions: const [
-              Icon(Icons.exit_to_app),
-            ],
-
+        slivers: <Widget>[
+          SliverAppBar(
+            backgroundColor: Colors.black,
             pinned: true,
-            floating: false,
-            snap: false,
-
-            expandedHeight: 250,
-            flexibleSpace: FlexibleSpaceBar(
-              background: Image.network('https://buddy.works/blog/thumbnails/flutter/flutter-cover.png',fit: BoxFit.cover,),
+            floating: true,
+            expandedHeight: 200,
+            centerTitle: true,
+            flexibleSpace: const FlexibleSpaceBar(
               centerTitle: true,
-              title: const Text(
-                "Sliver App Bar",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16.0,
+              title: Text(
+                'Super heroes',
+                style: TextStyle(color: Colors.white54),
+              ),
+              expandedTitleScale: 3,
+              background: Image(
+                image: NetworkImage(
+                  'https://images5.alphacoders.com/131/thumbbig-1311166.webp',
                 ),
-              ), //Text
+                fit: BoxFit.cover,
+              ),
             ),
+            leading: IconButton(
+              onPressed: () {
+                debugPrint('pressed');
+                  showModalBottomSheet(
+                    backgroundColor: Colors.black,
+                    context: context,
+                    builder: (context) {
+                      return SizedBox(
+                        height: 500,
+                        child: Column(
+                          children: [
+                            myTextFormFiled(myController: charController),
+                            const SizedBox(
+                              height: 40,
+                            ),
+                            myButton(value: charController.text.trim()),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+              },
+              icon: const Icon(Icons.add),
+            ),
+            
           ),
-
-
           SliverList(
-            delegate: SliverChildListDelegate(
-              _buildList(40),
+            delegate: SliverChildBuilderDelegate(
+              (context, index) {
+                return myWidget(myList[index]);
+              },
+              childCount: myList.length,
             ),
           ),
         ],
@@ -49,21 +83,58 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  List<Widget> _buildList(int count) {
-    List<Widget> listItems = [];
-    for (int i = 0; i < count; i++) {
-      listItems.add(
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Text(
-            'Sliver Item ${i.toString()}',
-            style: const TextStyle(
-              fontSize: 22.0,
+  myWidget(char) => Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.black,
+            borderRadius: BorderRadius.circular(10)
+          ),
+          height: 150,
+          width: 150,
+          child: Center(
+            child: Text(char.toString(),style: TextStyle(color: Colors.white),),
+          ),
+        ),
+      );
+
+  myTextFormFiled({
+    required myController,
+  }) =>
+      Padding(
+        padding: const EdgeInsets.all(25.0),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white60,
+            borderRadius: BorderRadius.circular(5),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextFormField(
+              decoration: const InputDecoration(
+                border: InputBorder.none
+              ),
+              controller: myController,
+              cursorColor: Colors.red,
             ),
           ),
         ),
       );
-    }
-    return listItems;
-  }
+
+  myButton({required String value}) => ElevatedButton(
+        onPressed: () {
+          if(value.isNotEmpty) {
+            myList.add(value);
+            setState(() {
+              myList;
+            });
+            Navigator.of(context).pop();
+            charController.clear();
+          }
+        },
+        style:ElevatedButton.styleFrom(
+          backgroundColor: Colors.red
+        ),
+        child: const Text('add your character'),
+      );
 }
